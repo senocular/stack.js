@@ -173,7 +173,9 @@ example, could get the value in the return statement in the previous call stack 
 
 `Stack.kill()`
 
-Stops execution of any additional call stacks within the stack list, clearing the stack list in the process.
+Stops execution of any additional call stacks within the stack list, clearing the stack list in the process. 
+The current stack will complete as expected, but additional stacks, even those added after the call to
+`kill()`, will not.
 
 
 **clear**
