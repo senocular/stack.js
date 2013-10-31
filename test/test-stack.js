@@ -312,6 +312,20 @@ function testErrors(){
 
 	console.assert(result === "post", "push()ed method runs after throw earlier in stack list");
 
+	result = 0;
+	function setValue(){
+		return 1;
+	}
+	function getValue(){
+		result = Stack.value();
+	}
+	Stack.push(setValue);
+	Stack.push(thrower);
+	Stack.push(getValue);
+	Stack.exec();
+
+	console.assert(result === void 0, "thrown error in stack results in undefined value() in next stack");
+
 	delete Stack.onerror;
 },
 

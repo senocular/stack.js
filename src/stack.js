@@ -106,8 +106,10 @@ window.Stack = (function(){
 			stackMethod = this._stacks.shift();
 			try {
 				this._lastValue = stackMethod.call();
+
 			}catch(err){
-				
+				this._lastValue = void 0;
+
 				// custom error handling here could throw and
 				// break the stack. That's ok; it may be desired
 				// for debugging purposes so it won't be handled
