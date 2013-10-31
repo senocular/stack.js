@@ -10,7 +10,7 @@ of when methods get run within the context of a current code block.  The big tak
 - Preventing unhandled errors in the current context blocking additional, sequential method invocations
 
 Everything is still being executed in a single JavaScript call stack, but this code will sit at the top 
-of stack and manage sub stacks you can set up with methods like defer(). In the process, it will catch
+of stack and manage sub stacks you can set up with methods like `defer()`. In the process, it will catch
 unhandled errors for you so that additional call stacks (these sub stacks) can be executed without being
 interrupted by those exceptions.
 
@@ -18,9 +18,9 @@ interrupted by those exceptions.
 Usage
 -----
 
-Basics:
-
-This example shows how `defer()` is used to execute a method after the current code call stack has finished.
+This example shows how `defer()` is used to execute a method after the current (Stack-based) call stack, 
+started with `exec()`, has finished. (`invoked()` is also used to call functions in Stack-based call stacks
+as seen later on.)
 
 ```javascript
 function hardWork(){
@@ -48,7 +48,7 @@ function hardWork(){
 function work(){
   Stack.defer(hardWork); // delays call of hardWork()
   console.log("Easy work");
-  throw new Error("Getting tired"); // ok to throw, won't affect other call stacks
+  throw new Error("Getting tired"); // won't affect hardWork being in other call stack
 }
 
 Stack.exec(work); // execute work() in a managed call stack
@@ -58,24 +58,47 @@ Stack.exec(work); // execute work() in a managed call stack
 // Hard work
 ```
 
-The method `invoked()` allows you to bind method calls to a call stack when called.
+The method `invoked()` allows you to bind functions to a call stack when called.
 
 ```javascript
 function clickHandler(event){
-  // defer log called for console with arguments [event.target.localName]
-  Stack.defer(console, console.log, [event.target.localName]); 
+  // defer log() called for console with arguments [event.target.localName]
+  Stack.defer(console, console.log, [event.target.localName]);
   console.log("clicked:");
 }
 
 document.addEventListener("click", Stack.invoked(clickHandler));
-
 // output on click:
 // clicked:
 // html
+```
+
+You can also build up a list of call stacks using `push()`.
+
+```javascript
+
+function first(){
+  console.log("first");
+}
+function second(){
+  console.log("second");
+}
+function third(){
+  console.log("third");
+}
+
+Stack.push(first);
+Stack.push(second);
+Stack.push(third);
+Stack.exec();
+// outputs:
+// first
+// second
+// third
 ```
 
 
 TODO
 ----
 
-Complete describing what this thing is here.
+API.
