@@ -100,7 +100,6 @@ window.Stack = (function(){
 
 		this._isExec = true;
 		this._defers.length = 0;
-		this._lastValue = void 0; // values not carried over from prev execs
 		while (this._stacks.length && !this._killSwitch){
 
 			stackMethod = this._stacks.shift();

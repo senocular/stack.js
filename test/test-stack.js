@@ -205,7 +205,7 @@ function testValue(){
 	}
 
 	Stack.exec(next);
-	console.assert(result === void 0, "value() cleared in first call to exec()");
+	console.assert(result === 3, "value() saved from previous call to exec()");
 
 	console.assert(Stack.value() === 4, "value() retained after exec() prior to clear()");
 	Stack.clear();
