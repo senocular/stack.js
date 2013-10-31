@@ -125,6 +125,20 @@ function testPush(){
 	Stack.exec();
 
 	console.assert(result === "", "clear() clears push()ed stacks from exec()");
+
+
+	function p2push(){
+		Stack.push(p2);
+		result += "(push)";
+	}
+
+	result = "";
+	Stack.push(p1);
+	Stack.push(p2push);
+	Stack.push(p3);
+	Stack.exec();
+
+	console.assert(result === "a(push)cb", "push() in exec() pushes to end of stack");
 },
 
 function testDefer(){
@@ -184,6 +198,16 @@ function testValue(){
 	console.assert(result === 2, "value() in defer() captures previous stack return value");
 	console.assert(Stack.value() === 3, "value() retained after exec()");
 
+	result = 0;
+	function next(){
+		result = Stack.value();
+		return 4;
+	}
+
+	Stack.exec(next);
+	console.assert(result === void 0, "value() cleared in first call to exec()");
+
+	console.assert(Stack.value() === 4, "value() retained after exec() prior to clear()");
 	Stack.clear();
 	console.assert(Stack.value() === undefined, "value() undefined after clear()");
 },
