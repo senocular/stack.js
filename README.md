@@ -18,7 +18,7 @@ interrupted by those exceptions.
 Usage
 -----
 
-This example shows how `defer()` is used to execute a method after the current (Stack-based) call stack, 
+See how `defer()` is used to execute a method after the current (Stack-based) call stack, 
 started with `exec()`, has finished. (`invoked()` is also used to call functions in Stack-based call stacks
 as seen later on.)
 
@@ -74,7 +74,8 @@ document.addEventListener("click", Stack.invoked(clickHandler)); // clickHandler
 // html
 ```
 
-You can also build up a list of call stacks using `push()`.
+You can also build up a list of call stacks using `push()`. This also demonstrates different ways
+to specify stack calls.
 
 ```javascript
 function first(){
@@ -88,8 +89,8 @@ function third(){
 }
 
 Stack.push(first);
-Stack.push(second);
-Stack.push(third);
+Stack.push(this, second);
+Stack.push(this, "third");
 Stack.exec();
 // outputs:
 // first
