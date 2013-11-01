@@ -107,7 +107,8 @@ specific to their call stack context.  Unhandled errors in those calls will only
 their own contexts and not those of other call stacks.
 
 The API accepts methods both with and without a scope as well as with and without an arguments list. 
-There are usually two method signatures that allow this:
+When a scope is provided, the method can be a function reference or the name of the method as it
+is defined within the scope object. There are usually two method signatures that allow this:
 
 - `member([method [, argumentsArray]])`
 - `member([scope, method [, argumentsArray]])`
