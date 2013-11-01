@@ -47,7 +47,7 @@ window.Stack = (function(){
 		// adding method to defers which will be added
 		// to the stack list by the exec() stack loop
 		var item = new StackMethod(scope, fn, args);
-		if (typeof item.fn === "function"){
+		if (item.isCallable()){
 
 			// validation doesn't need to happen if
 			// attempt is made on an invalid defer
@@ -70,7 +70,7 @@ window.Stack = (function(){
 	 */
 	Stack.prototype.push = function(scope, fn, args){
 		var item = new StackMethod(scope, fn, args);
-		if (typeof item.fn === "function"){
+		if (item.isCallable()){
 			this._stacks.push(item);
 			return true;
 		}
@@ -201,12 +201,26 @@ window.Stack = (function(){
 	 */
 	StackMethod.prototype.call = function(/* arguments */){
 
+		// the function can be a direct reference or 
+		// looked up dynamially by name upon being called
+		var fn = null;
+		if (typeof this.fn === "function"){
+			fn = this.fn; // by reference
+		}else if (this.scope) {
+			fn = this.scope[this.fn]; // by name
+		}
+
+		// exit without a function to call
+		if (!fn){
+			return;
+		}
+
 		// multiple call()s would continue to build
 		// up the argument list, but a call() should
 		// only ever hapen once making it not matter
 		this.prependArgs(arguments);
 
-		this.returnValue = this.fn.apply(this.scope, this.args);
+		this.returnValue = fn.apply(this.scope, this.args);
 		return this.returnValue;
 	};
 		
@@ -215,6 +229,28 @@ window.Stack = (function(){
 	 */
 	StackMethod.prototype.prependArgs = function(addArgs){
 		this.args.unshift.apply(this.args, addArgs);
+	};
+		
+	/**
+	 * Determines if the method is likely able to be called.
+	 * It can be possible to not be callable at the time of
+	 * being called, but this will determine if it is 
+	 * definitely not callable.
+	 */
+	StackMethod.prototype.isCallable = function(){
+		if (typeof this.fn === "function"){
+			return true;
+		}
+
+		// Note: Checking for just `this.fn` below is not enough since
+		// it is possible to have empty string ("") keys in an object
+		// which will resolve to false if not compared to null
+		if (this.fn != null && this.scope){
+			// can possibly be called by name from scope
+			return true;
+		}
+
+		return false;
 	};
 
 

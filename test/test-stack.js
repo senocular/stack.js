@@ -12,6 +12,7 @@ function testExec(){
 	console.assert(Stack._stacks.length === 0, "stack list is empty after exec(fn)");
 
 
+	// Note: exec() directs arguments to push() inhernetly testing push() arguments
 	result = 0;
 	function argumented(val){
 		result = val;
@@ -45,6 +46,25 @@ function testExec(){
 
 	Stack.exec(a, scopeArg, 2);
 	console.assert(result === 3, "exec() runs a function scoped to 'object A' with an argument");
+
+
+	result = 0;
+	var scope = {
+		method: function(){
+			result = 1;
+		}
+	};
+
+	Stack.exec(scope, "method");
+	console.assert(result === 1, "exec() runs a method by name in an object scope");
+
+	Stack.push(scope, "method"); // if run now, result = 1
+	scope.method = function(){
+		result = 2;
+	};
+
+	Stack.exec();
+	console.assert(result === 2, "exec() runs a method by name with version defined after it was push()ed to stack list");
 },
 
 function testInvoked(){
@@ -86,6 +106,14 @@ function testPush(){
 
 	console.assert(result === 1, "push() adds a function called after exec()");
 	console.assert(Stack._stacks.length === 0, "stack list is empty after push() exec()");
+
+
+	Stack.push(null);
+	Stack.push(null, "method");
+	Stack.push({});
+	Stack.push({}, null);
+	console.assert(Stack._stacks.length === 0, "push() with invalid arguments does not add to stack");
+	Stack.clear();
 
 
 	result = "";
