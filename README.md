@@ -147,7 +147,7 @@ than being added to the end.
 - `Stack.deferOnce([method [, argumentsArray]])`
 - `Stack.deferOnce([scope, method [, argumentsArray]])`
 
-Like `push()` but does not allow duplication when defering methods.  In additional calls to `pushOnce()` 
+Like `push()` but does not allow duplication when pushing methods.  In additional calls to `pushOnce()` 
 with the same method, the previous is found and removed from the stack list.  Duplicate methods are found 
 by function reference only; the argument list is ignored.
 
@@ -167,7 +167,7 @@ the call stack list outside of a Stack-managed call stack, use `push()`.
 - `Stack.deferOnce([method [, argumentsArray]])`
 - `Stack.deferOnce([scope, method [, argumentsArray]])`
 
-Like `defer()` but does not allow duplication when defering methods.  In additional calls to `deferOnce()` 
+Like `defer()` but does not allow duplication when deferring methods.  In additional calls to `deferOnce()` 
 with the same method, the previous is found and removed from the stack list.  Duplicate methods are found 
 by function reference only; the argument list is ignored.
 
