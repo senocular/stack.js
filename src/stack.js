@@ -46,7 +46,28 @@ window.Stack = (function(){
 
 		// adding method to defers which will be added
 		// to the stack list by the exec() stack loop
+		return this._deferItem( new StackMethod(scope, fn, args) );
+	};
+
+	/**
+	 * A variation of defer that does not duplicate
+	 * method calls in a stack list.  Duplicate methods
+	 * are identified by the function reference resolved
+	 * at the time of the call to deferOnce. Argument 
+	 * values are ignored. If a duplicate is found,
+	 * the original is removed, and this new variation
+	 * of the method is deferred.
+	 */
+	Stack.prototype.deferOnce = function(scope, fn, args){
 		var item = new StackMethod(scope, fn, args);
+		this._remove(item, this._defers);
+		return this._deferItem(item);
+	};
+
+	/**
+	 * Defers a StackMethod object.
+	 */
+	Stack.prototype._deferItem = function(item){
 		if (item.isCallable()){
 
 			// validation doesn't need to happen if
@@ -69,10 +90,55 @@ window.Stack = (function(){
 	 * occurring immediately following the current call stack.
 	 */
 	Stack.prototype.push = function(scope, fn, args){
+		return this._pushItem( new StackMethod(scope, fn, args) );
+	};
+
+	/**
+	 * A variation of push that does not duplicate
+	 * method calls in a stack list.  Duplicate methods
+	 * are identified by the function reference resolved
+	 * at the time of the call to deferOnce. Argument 
+	 * values are ignored. If a duplicate is found,
+	 * the original is removed, and this new variation
+	 * of the method is added to the end of the stack list.
+	 */
+	Stack.prototype.pushOnce = function(scope, fn, args){
 		var item = new StackMethod(scope, fn, args);
+		this._remove(item, this._stacks);
+		return this._pushItem(item);
+	};
+
+	/**
+	 * Pushes a StackMethod object.
+	 */
+	Stack.prototype._pushItem = function(item){
 		if (item.isCallable()){
 			this._stacks.push(item);
 			return true;
+		}
+
+		return false;
+	};
+
+	/**
+	 * Removes a single item from the end of the stack
+	 * or specified list. Items are not identified by
+	 * reference, rather by their resolved function
+	 * reference.
+	 */
+	Stack.prototype._remove = function(item, list){
+		if (!list){
+			list = this._stacks;
+		}
+
+		var itemFn = item.getFn();
+
+		var i = list.length;
+		while (i--){
+			if (itemFn === list[i].getFn()){
+				list.splice(i, 1);
+				return true;
+			}
 		}
 
 		return false;
@@ -201,16 +267,8 @@ window.Stack = (function(){
 	 */
 	StackMethod.prototype.call = function(/* arguments */){
 
-		// the function can be a direct reference or 
-		// looked up dynamially by name upon being called
-		var fn = null;
-		if (typeof this.fn === "function"){
-			fn = this.fn; // by reference
-		}else if (this.scope) {
-			fn = this.scope[this.fn]; // by name
-		}
-
 		// exit without a function to call
+		var fn = this.getFn();
 		if (!fn){
 			return;
 		}
@@ -227,10 +285,29 @@ window.Stack = (function(){
 	/**
 	 * Adds arguments to the called method.
 	 */
+	StackMethod.prototype.getFn = function(){
+
+		// the function can be a direct reference or 
+		// looked up dynamially by name upon being called
+
+		if (typeof this.fn === "function"){
+			return this.fn; // by reference
+		}
+
+		if (this.scope) {
+			return this.scope[this.fn]; // by name
+		}
+
+		return null;
+	};
+		
+	/**
+	 * Adds arguments to the called method.
+	 */
 	StackMethod.prototype.prependArgs = function(addArgs){
 		this.args.unshift.apply(this.args, addArgs);
 	};
-		
+
 	/**
 	 * Determines if the method is likely able to be called.
 	 * It can be possible to not be callable at the time of

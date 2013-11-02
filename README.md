@@ -142,6 +142,16 @@ of execution occurs in the order in which methods are pushed onto the stack list
 than being added to the end.
 
 
+**pushOnce**
+
+- `Stack.deferOnce([method [, argumentsArray]])`
+- `Stack.deferOnce([scope, method [, argumentsArray]])`
+
+Like `push()` but does not allow duplication when defering methods.  In additional calls to `pushOnce()` 
+with the same method, the previous is found and removed from the stack list.  Duplicate methods are found 
+by function reference only; the argument list is ignored.
+
+
 **defer**
 
 - `Stack.defer([method [, argumentsArray]])`
@@ -150,6 +160,16 @@ than being added to the end.
 Sets a method to be called in the next call stack immediately following the current call stack.  Becaise 
 of this, `defer()` can only be called in the context of a Stack-managed call stack.  To add methods to
 the call stack list outside of a Stack-managed call stack, use `push()`.
+
+
+**deferOnce**
+
+- `Stack.deferOnce([method [, argumentsArray]])`
+- `Stack.deferOnce([scope, method [, argumentsArray]])`
+
+Like `defer()` but does not allow duplication when defering methods.  In additional calls to `deferOnce()` 
+with the same method, the previous is found and removed from the stack list.  Duplicate methods are found 
+by function reference only; the argument list is ignored.
 
 
 **invoked**

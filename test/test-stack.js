@@ -101,6 +101,7 @@ function testPush(){
 		result = 1;
 	}
 
+	result = 0;
 	Stack.push(main);
 	Stack.exec();
 
@@ -116,54 +117,99 @@ function testPush(){
 	Stack.clear();
 
 
-	result = "";
-	function p1(){
+	function addA(){
 		result += "a";
 	}
-	function p2(){
+	function addB(){
 		result += "b";
 	}
-	function p3(){
+	function addC(){
 		result += "c";
 	}
 
 
-	Stack.push(p1);
-	Stack.push(p2);
-	Stack.push(p3);
+	result = "";
+	Stack.push(addA);
+	Stack.push(addB);
+	Stack.push(addC);
 	Stack.exec();
 
 	console.assert(result === "abc", "multiple push()es adds functions each called sequentially after exec()");
 
 
 	result = "";
-	Stack.push(p1);
-	Stack.push(p1);
-	Stack.push(p1);
+	Stack.push(addA);
+	Stack.push(addA);
+	Stack.push(addA);
 	Stack.exec();
 
 	console.assert(result === "aaa", "push() same function runs each duplicate function");
 
 
 	result = "";
-	Stack.push(p1);
-	Stack.push(p2);
-	Stack.push(p3);
+	Stack.pushOnce(addA);
+	Stack.pushOnce(addB);
+	Stack.pushOnce(addC);
+	Stack.exec();
+
+	console.assert(result === "abc", "multiple pushOnce()es adds functions each called sequentially after exec()");
+
+
+	result = "";
+	Stack.pushOnce(addA);
+	Stack.pushOnce(addA);
+	Stack.pushOnce(addA);
+	Stack.exec();
+
+	console.assert(result === "a", "pushOnce() same function does not duplicate function");
+
+
+	result = "";
+	Stack.pushOnce(addA);
+	Stack.push(addB);
+	Stack.pushOnce(addA);
+	Stack.exec();
+
+	console.assert(result === "ba", "last pushOnce() is the push that is called");
+
+
+	result = "";
+	var scope = {
+		method: function(){
+			result += "a";
+		}
+	};
+
+	result = "";
+	Stack.pushOnce(scope.method);
+	Stack.pushOnce(scope.method, [1,2,3]);
+	Stack.pushOnce(scope, scope.method);
+	Stack.pushOnce(scope, "method");
+	Stack.pushOnce(scope, "method", [3,2,1]);
+	Stack.exec();
+
+	console.assert(result === "a", "pushOnce() same function by reference and name does not duplicate function");
+
+
+	result = "";
+	Stack.push(addA);
+	Stack.push(addB);
+	Stack.pushOnce(addC);
 	Stack.clear();
 	Stack.exec();
 
 	console.assert(result === "", "clear() clears push()ed stacks from exec()");
 
 
-	function p2push(){
-		Stack.push(p2);
+	function addBPush(){
+		Stack.push(addB);
 		result += "(push)";
 	}
 
 	result = "";
-	Stack.push(p1);
-	Stack.push(p2push);
-	Stack.push(p3);
+	Stack.push(addA);
+	Stack.push(addBPush);
+	Stack.push(addC);
 	Stack.exec();
 
 	console.assert(result === "a(push)cb", "push() in exec() pushes to end of stack");
@@ -181,13 +227,13 @@ function testDefer(){
 		result = 2;
 	}
 
+	result = 0;
 	Stack.exec(main);
 
 	console.assert(result === 2, "defer() calls a function later in a stack");
 	console.assert(Stack._stacks.length === 0, "stack list is empty after exec() defer()");
 
 
-	result = 0;
 	function p1(){
 		Stack.defer(d1);
 		result = 1;
@@ -202,11 +248,76 @@ function testDefer(){
 	}
 
 
+	result = 0;
 	Stack.push(p1);
 	Stack.push(p2);
 	Stack.exec();
 
 	console.assert(result === 3, "defer() inserted after current stack, not at end of stack");
+
+
+	function onceSame(){
+		Stack.deferOnce(addA);
+		Stack.deferOnce(addA);
+		Stack.deferOnce(addA);
+	}
+
+	function addA(){
+		result += "a";
+	}
+
+	function addB(){
+		result += "b";
+	}
+
+	function addC(){
+		result += "c";
+	}
+
+	result = "";
+	Stack.exec(onceSame);
+	console.assert(result === "a", "deferOnce() same function does not duplicate function");
+
+
+	function onceDiff(){
+		Stack.deferOnce(addA);
+		Stack.deferOnce(addB);
+		Stack.deferOnce(addC);
+	}
+
+	result = "";
+	Stack.exec(onceDiff);
+	console.assert(result === "abc", "multiple deferOnce()es adds functions each called sequentially after exec()");
+
+
+	function onceOrder(){
+		Stack.deferOnce(addA);
+		Stack.deferOnce(addB);
+		Stack.deferOnce(addA);
+	}
+
+	result = "";
+	Stack.exec(onceOrder);
+	console.assert(result === "ba", "last deferOnce() is the defer that is called");
+
+
+	function onceVary(){
+		Stack.deferOnce(scope.method);
+		Stack.deferOnce(scope.method, [1,2,3]);
+		Stack.deferOnce(scope, scope.method);
+		Stack.deferOnce(scope, "method");
+		Stack.deferOnce(scope, "method", [3,2,1]);
+	}
+
+	var scope = {
+		method: function(){
+			result += "a";
+		}
+	};
+
+	result = "";
+	Stack.exec(onceVary);
+	console.assert(result === "a", "deferOnce() same function by reference and name does not duplicate function");
 },
 
 function testValue(){
