@@ -144,8 +144,8 @@ than being added to the end.
 
 **pushOnce**
 
-- `Stack.deferOnce([method [, argumentsArray]])`
-- `Stack.deferOnce([scope, method [, argumentsArray]])`
+- `Stack.pushOnce([method [, argumentsArray]])`
+- `Stack.pushOnce([scope, method [, argumentsArray]])`
 
 Like `push()` but does not allow duplication when pushing methods.  In additional calls to `pushOnce()` 
 with the same method, the previous is found and removed from the stack list.  Duplicate methods are found 
